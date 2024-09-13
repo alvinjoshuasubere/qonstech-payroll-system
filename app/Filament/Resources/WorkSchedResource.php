@@ -28,7 +28,7 @@ class WorkSchedResource extends Resource
 
     protected static ?string $title = 'Work Schedules';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {

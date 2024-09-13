@@ -28,6 +28,8 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?int $navigationSort = 6;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -113,7 +115,7 @@ class EmployeeResource extends Resource
                         ->required(fn (string $context) => $context === 'create')
                         ->relationship('project', 'ProjectName')
                         ->native(false)
-                        ->reactive() // Makes the field reactive to changes
+                        ->reactive()
                         ->afterStateUpdated(fn ($state, callable $set) => $set('status', $state ? 'Assigned' : 'Available'))
                         ,
 
@@ -181,14 +183,14 @@ class EmployeeResource extends Resource
                 TextColumn::make('contact_number'),
                 TextColumn::make('status'),
 
-            ])//end of columns
+            ])
 
             ->filters([
                 SelectFilter::make('first_name')
                 ->label('Filter by Employee First Name')
                 ->options(
                     \App\Models\Employee::query()
-                        ->pluck('first_name', 'first_name') // Fetch distinct first names from the database
+                        ->pluck('first_name', 'first_name')
                         ->toArray()
                 )
                 ->searchable()
