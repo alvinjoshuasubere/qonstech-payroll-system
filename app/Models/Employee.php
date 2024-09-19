@@ -14,6 +14,7 @@ class Employee extends Model
 
     protected $fillable = [
         'position_id',
+        'overtime_id',
         'project_id',
         'schedule_id',
         'first_name',
@@ -26,6 +27,7 @@ class Employee extends Model
         'province',
         'contact_number',
         'status',
+        'attendance_code'
     ];
 
     // Defining the relationships
@@ -54,6 +56,11 @@ class Employee extends Model
         return $this->belongsTo(WorkSched::class);
     }
 
+    public function overtime()
+    {
+        return $this->belongsTo(Overtime::class, 'overtime_id');
+    }
+
     /**
      * Get the full name of the employee.
      *
@@ -68,4 +75,10 @@ class Employee extends Model
 {
     return trim("{$this->street} {$this->barangay} {$this->city} {$this->province}");
 }
+
+
+    public function attendanceRecords()
+    {
+        return $this->hasMany(Attendance::class, 'employee_id');
+    }
 }

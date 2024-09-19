@@ -154,9 +154,53 @@ class ListEmployees extends ListRecords
                 })
                 ->modalHeading('Assign Employee Work Schedule')
                 ->modalSubmitActionLabel('Assign')
+                ->modalWidth('lg'),
+
+
+                Action::make('assignEmployeessss')
+                ->label('Assign Employees To Overtime')
+                ->form([
+                            Select::make('employees')
+                        ->label('Select Employees')
+                        ->options(
+                            \App\Models\Employee::query()
+                                ->pluck('first_name', 'id') 
+                                ->toArray()
+                        )
+                        ->searchable()
+                        ->multiple()
+                        ->preload()
+                        ->required(),
+    
+                        Select::make('overtime_id')
+                        ->label('Overtime')
+                        ->required(fn (string $context) => $context === 'create')
+                        ->relationship('overtime', 'Reason')
+                        ->searchable()
+                        ->required()
+                        ->preload(),
+                ])
+                ->action(function (array $data, Collection $records) {
+                    $schedId = $data['overtime_id'];
+    
+                    $employeeIds = $data['employees'];
+    
+                    
+                    foreach ($employeeIds as $employeeId) {
+                    $employee = \App\Models\Employee::findOrFail($employeeId);
+                    $employee->update(['overtime_id' => $schedId]);
+                    }
+    
+                    Notification::make()
+                    ->body('Employees Assigned To Overtime Successfully.')
+                    ->success()
+                    ->send();
+                })
+                ->modalHeading('Assign Employee to Overtime')
+                ->modalSubmitActionLabel('Assign')
                 ->modalWidth('lg')
 
-            ])->label('Assign Employees')->button()->size(ActionSize::Small),
+            ])->label('Assign Employees')->button()->size(ActionSize::Medium),
             
         
 

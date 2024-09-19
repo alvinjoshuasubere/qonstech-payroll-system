@@ -15,4 +15,17 @@ class pagibig extends Model
         'MonthlySalary',
         'Rate',
     ];
+
+
+    public function calculateContribution($salary)
+    {
+        // Determine rate based on salary
+        if ($salary < 1500) {
+            $rate = 1; // 1% if salary is below 1500
+        } else {
+            $rate = 2; // 2% if salary is 1500 or more
+        }
+
+        return $salary * ($rate / 100);
+    }
 }
