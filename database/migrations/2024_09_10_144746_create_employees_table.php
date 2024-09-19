@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('position_id');
+            $table->unsignedBigInteger('overtime_id'); 
             $table->unsignedBigInteger('project_id');
             $table->unsignedBigInteger('schedule_id');
+            
+            
             $table->string('first_name', 50);
             $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
@@ -26,9 +29,11 @@ return new class extends Migration
             $table->string('province', 50);
             $table->string('contact_number', 15);
             $table->string('status');
-
-            // Foreign key constraints
+            $table->string('attendance_code', 50); 
+            
+           
             $table->foreign('position_id')->references('id')->on('positions')->onDelete('cascade');
+            $table->foreign('overtime_id')->references('id')->on('overtime')->onDelete('cascade'); // New foreign key
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
             $table->foreign('schedule_id')->references('id')->on('worksched')->onDelete('cascade');
             $table->timestamps();
