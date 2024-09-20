@@ -5,25 +5,19 @@ use Illuminate\Http\Request;
 
 class BiometricController extends Controller
 {
-    public function captureFingerprint(Request $request)
+    public function store(Request $request)
     {
-        // Load SDK and start the fingerprint capture process
-        $digitalPersonaSDK = new \DigitalPersona\FingerprintCapture();
+        $request->validate([
+            'attendance_code' => 'required|string',
+            'fingerprint_data' => 'required|string',
+        ]);
 
-        // Start capturing the fingerprint
-        $fingerprintData = $digitalPersonaSDK->capture();
-        
-        // Handle the fingerprint data and store it in the database
-        if ($fingerprintData) {
-            $encodedFingerprint = base64_encode($fingerprintData);
-            Biometrics::create([
-                'attendance_code' => $request->user()->id,
-                'fingerprint_data' => $encodedFingerprint,
-            ]);
-        
-            return response()->json(['message' => 'Fingerprint captured and stored successfully.']);
-        } else {
-            return response()->json(['message' => 'Fingerprint capture failed.'], 500);
-        }
+        // Store attendance data
+        Biometrics::create([
+            'attendance_code' => $request->attendance_code,
+            'fingerprint_data' => $request->biometric_data,
+        ]);
+
+        return response()->json(['message' => 'Biometric data stored successfully!'], 200);
     }
 }

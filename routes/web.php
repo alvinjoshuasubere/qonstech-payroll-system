@@ -6,9 +6,8 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 Route::get('/biometrics/capture', function () {
-    return view('CaptureImage.php');
+    return view('CaptureImageResource.php');
 });
-
 
 Route::post('/biometrics/capture', [BiometricController::class, 'captureFingerprint']);
 

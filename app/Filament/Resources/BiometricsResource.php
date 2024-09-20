@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BiometricsResource\Pages;
+// use App\Filament\Resources\CaptureImage\Pages;
 use App\Models\Biometrics;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,6 +20,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+
 class BiometricsResource extends Resource
 {
     protected static ?string $model = Biometrics::class;
@@ -28,25 +30,32 @@ class BiometricsResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-        ]);
-        // ->actions([
-        //     Action::make('captureFingerprint')
-        //         ->label('New Biometric')
-        //         ->url(route('filament.pages.biometric-capture')), 
-        // ]);
+            ->schema([
+                Forms\Components\TextInput::make('attendance_code')
+                    ->required(),
+                Forms\Components\Textarea::make('biometric_data')
+                    ->label('Biometric Data')
+                    ->disabled()  // Display-only in admin panel
+                    ->required(),
+            ]);
     }
-    
-    public static function table(Table $table): Table
+
+    public static function table(Tables\Table $table): Tables\Table
     {
         return $table
             ->columns([
-                TextColumn::make('attendance_code'),
-                ImageColumn::make('fingerprint_data')->label('Fingerprint')
+                Tables\Columns\TextColumn::make('attendance_code')
+                    ->label('Attendance Code'),
+                Tables\Columns\TextColumn::make('biometric_data')
+                    ->label('Biometric Data')
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime(),
             ]);
     }
-    
 
+   
     public static function getPages(): array
     {
         return [
