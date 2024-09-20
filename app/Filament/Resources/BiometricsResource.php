@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+// use Filament\Forms\Components\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -27,10 +28,13 @@ class BiometricsResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('attendance_code')->required(),
-                FileUpload::make('fingerprint_data')->label('Fingerprint Data')
-            ]);
+        ->schema([
+        ]);
+        // ->actions([
+        //     Action::make('captureFingerprint')
+        //         ->label('New Biometric')
+        //         ->url(route('filament.pages.biometric-capture')), 
+        // ]);
     }
     
     public static function table(Table $table): Table
