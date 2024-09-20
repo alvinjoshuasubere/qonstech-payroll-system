@@ -28,7 +28,9 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?string $navigationGroup = "Employee/Deduction/Earnings";
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -45,12 +47,17 @@ class EmployeeResource extends Resource
                     TextInput::make('middle_name')
                     ->label('Middle Name')
                     ->rules('regex:/^[^\d]*$/'),
+                    
 
                     TextInput::make('last_name')
                     ->label('last Name')
                     ->required(fn (string $context) => $context === 'create')
                     ->rules('regex:/^[^\d]*$/'),
-                ])->columns(3)->collapsible(true),
+
+                    TextInput::make('attendance_code')
+                    ->label('Attendance Code')
+                    ->required(fn (string $context) => $context === 'create')
+                    ])->columns(3)->collapsible(true),
 
                 Section::make('Address')
                 ->schema([
@@ -98,7 +105,7 @@ class EmployeeResource extends Resource
                             'Apolinario Mabini St.' => 'Apolinario Mabini St.',
                             'Bonifacio St.' => 'Bonifacio St.',
                         ])->native(false),
-                ])->columns(3)->collapsible(true),
+                ])->columns(4)->collapsible(true),
 
 
 
@@ -124,7 +131,12 @@ class EmployeeResource extends Resource
                         ->required(fn (string $context) => $context === 'create')
                         ->relationship('schedule', 'ScheduleName')
                         ->native(false),
-                ])->columns(3)->collapsible(true),
+
+                    Select::make('overtime_id')
+                        ->label('Overtime')
+                        ->relationship('overtime', 'Reason')
+                        ->native(false),
+                ])->columns(4)->collapsible(true),
 
 
                 Section::make('Contact Number/Status')
@@ -180,6 +192,7 @@ class EmployeeResource extends Resource
                 TextColumn::make('position.PositionName'),
                 TextColumn::make('project.ProjectName'),
                 TextColumn::make('schedule.ScheduleName'),
+                TextColumn::make('overtime.Reason'),
                 TextColumn::make('contact_number'),
                 TextColumn::make('status'),
 
@@ -208,6 +221,13 @@ class EmployeeResource extends Resource
                 SelectFilter::make('position_id')
                 ->label('Filter by Position')
                 ->relationship('position', 'PositionName')
+                ->searchable()
+                ->multiple()
+                ->preload(),
+
+                SelectFilter::make('overtime_id')
+                ->label('Filter by Overtime')
+                ->relationship('overtime', 'Reason')
                 ->searchable()
                 ->multiple()
                 ->preload(),
@@ -251,6 +271,7 @@ class EmployeeResource extends Resource
                 ->deselectRecordsAfterCompletion()
                 ->requiresConfirmation(),
 
+
                 BulkAction::make('assign_to_position')
                 ->label('Assign to Position')
                 ->form([
@@ -264,6 +285,25 @@ class EmployeeResource extends Resource
 
                     foreach ($records as $record) {
                         $record->update(['project_id' => $projectId]);
+                    }
+                })
+                ->deselectRecordsAfterCompletion()
+                ->requiresConfirmation(),
+
+
+                BulkAction::make('assign_to_overtime')
+                ->label('Assign to Overtime')
+                ->form([
+                    Select::make('overtime_id')
+                        ->label('Overtime')
+                        ->relationship('overtime', 'Reason')
+                        ->required()
+                ])
+                ->action(function (array $data, Collection $records) {
+                    $projectId = $data['overtime_id'];
+
+                    foreach ($records as $record) {
+                        $record->update(['overtime_id' => $projectId]);
                     }
                 })
                 ->deselectRecordsAfterCompletion()

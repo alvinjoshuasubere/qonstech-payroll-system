@@ -15,10 +15,26 @@ class WorkSched extends Model
 
     protected $fillable = [
         'ScheduleName',
-        'Days',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
         'CheckinOne',
         'CheckoutOne',
         'CheckinTwo',
         'CheckoutTwo',
+    ];
+
+    protected $casts = [
+        'monday' => 'boolean',
+        'tuesday' => 'boolean',
+        'wednesday' => 'boolean',
+        'thursday' => 'boolean',
+        'friday' => 'boolean',
+        'saturday' => 'boolean',
+        'sunday' => 'boolean',
     ];
 }

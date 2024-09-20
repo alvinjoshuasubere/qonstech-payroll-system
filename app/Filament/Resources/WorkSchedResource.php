@@ -14,7 +14,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -34,24 +37,23 @@ class WorkSchedResource extends Resource
     {
         return $form
             ->schema([
+
                 TextInput::make('ScheduleName')
                 ->label('Schedule Name')
                 ->required(fn (string $context) => $context === 'create')
                 ->unique(ignoreRecord: true)
                 ->rules('regex:/^[^\d]*$/'),
 
-                Select::make('Days')
-                ->label('Days of Week')
-                ->options([
-                'Monday' => 'Monday',
-                'Tuesday' => 'Tuesday',
-                'Wednesday' => 'Wednesday',
-                'Thursday' => 'Thursday',
-                'Friday' => 'Friday',
-                'Saturday' => 'Saturday',
-                'Sunday' => 'Sunday',
-                        ])  
-                ->required(fn (string $context) => $context === 'create'),
+                Section::make('Days')
+                ->schema([
+                    Toggle::make('monday'),
+                    Toggle::make('tuesday'),
+                    Toggle::make('wednesday'),
+                    Toggle::make('thursday'),
+                    Toggle::make('friday'),
+                    Toggle::make('saturday'),
+                    Toggle::make('sunday'),
+                ])->compact()->columns(7)->collapsible(true),
             
                 Section::make('Morning Shift')
                 ->schema([
@@ -66,7 +68,7 @@ class WorkSchedResource extends Resource
                         ->after('CheckinOne')
                         ->required(fn (string $context) => $context === 'create'),
 
-                ]),
+                ])->collapsible(true),
             
             Section::make('Afternoon Shift')
                 ->schema([
@@ -80,7 +82,7 @@ class WorkSchedResource extends Resource
                         ->type('time')
                         ->after('CheckinTwo')
                         ->required(fn (string $context) => $context === 'create'),
-                ]),
+                ])->collapsible(true),
 
 
             ]);        
@@ -91,7 +93,13 @@ class WorkSchedResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('ScheduleName')->searchable(),
-                TextColumn::make('Days'),
+                IconColumn::make('monday')->boolean()->label('Monday'),
+                IconColumn::make('tuesday')->boolean()->label('Tuesday'),
+                IconColumn::make('wednesday')->boolean()->label('Wednesday'),
+                IconColumn::make('thursday')->boolean()->label('Thursday'),
+                IconColumn::make('friday')->boolean()->label('Friday'),
+                IconColumn::make('saturday')->boolean()->label('Saturday'),
+                IconColumn::make('sunday')->boolean()->label('Sunday'),
                 TextColumn::make('CheckinOne'),
                 TextColumn::make('CheckoutOne'),
                 TextColumn::make('CheckinTwo'),
