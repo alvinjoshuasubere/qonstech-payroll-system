@@ -4,9 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OvertimeResource\Pages;
 use App\Filament\Resources\OvertimeResource\RelationManagers;
+use App\Filament\Resources\OvertimeResource\RelationManagers\EmployeesRelationManager;
 use App\Models\Overtime;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -25,42 +27,50 @@ class OvertimeResource extends Resource
 
     protected static ?string $navigationLabel = 'Overtime';
 
+    protected static ?string $navigationGroup = "Overtime/Assign";
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('Reason')
-                ->required(fn (string $context) => $context === 'create')
-                ->unique(ignoreRecord: true)
-                ->rules('regex:/^[^\d]*$/'),
 
-                TextInput::make('Checkin')
-                ->label('Check-in Time')
-                ->type('time')
-                ->required(fn (string $context) => $context === 'create'),
-                    
-                TextInput::make('Checkout')
-                ->label('Check-out Time')
-                ->type('time')
-                ->after('Checkin')
-                ->required(fn (string $context) => $context === 'create'),
-
-
-                DatePicker::make('Date')
+                Section::make('Overtime Information')
+                ->schema([
+                    TextInput::make('Reason')
                     ->required(fn (string $context) => $context === 'create')
-                    ,
+                    ->unique(ignoreRecord: true)
+                    ->rules('regex:/^[^\d]*$/'),
+    
+                    TextInput::make('Checkin')
+                    ->label('Check-in Time')
+                    ->type('time')
+                    ->required(fn (string $context) => $context === 'create'),
+                        
+                    TextInput::make('Checkout')
+                    ->label('Check-out Time')
+                    ->type('time')
+                    ->after('Checkin')
+                    ->required(fn (string $context) => $context === 'create'),
+    
+    
+                    DatePicker::make('Date')
+                        ->required(fn (string $context) => $context === 'create')
+                        ,
+    
+    
+                    Select::make('Status')
+                    ->label('Status')
+                    ->options([
+                        'Approved' => 'Approved',
+                        'Rejected' => 'Rejected',
+                        'Pending' => 'Pending',
+    
+                    ])
+                    ->searchable()
+                    ->preload(),
 
-
-                Select::make('Status')
-                ->label('Status')
-                ->options([
-                    'Approved' => 'Approved',
-                    'Rejected' => 'Rejected',
-                    'Pending' => 'Pending',
-
-                ])
-                ->searchable()
-                ->preload(),
+                ]),
+                
             ]);
     }
 
@@ -79,6 +89,8 @@ class OvertimeResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -91,7 +103,7 @@ class OvertimeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            EmployeesRelationManager::class
         ];
     }
 
@@ -101,6 +113,7 @@ class OvertimeResource extends Resource
             'index' => Pages\ListOvertimes::route('/'),
             'create' => Pages\CreateOvertime::route('/create'),
             'edit' => Pages\EditOvertime::route('/{record}/edit'),
+            'view' => Pages\ViewEmployee::route('/{record}'),
         ];
     }
 }

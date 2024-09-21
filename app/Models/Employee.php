@@ -27,7 +27,12 @@ class Employee extends Model
         'province',
         'contact_number',
         'status',
-        'attendance_code'
+        'attendance_code',
+
+        'SSSNumber',
+        'PhilHealthNumber',
+        'PagibigNumber',
+        'TaxIdentificationNumber'
     ];
 
     // Defining the relationships
@@ -81,4 +86,6 @@ class Employee extends Model
     {
         return $this->hasMany(Attendance::class, 'employee_id');
     }
+
+    
 }

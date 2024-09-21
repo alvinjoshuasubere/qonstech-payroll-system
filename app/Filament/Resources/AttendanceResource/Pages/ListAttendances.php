@@ -19,6 +19,8 @@ class ListAttendances extends ListRecords
 {
     protected static string $resource = AttendanceResource::class;
 
+    protected static ?string $title = 'Attendance';
+
     protected function getHeaderActions(): array
     {
         return [
@@ -80,7 +82,7 @@ class ListAttendances extends ListRecords
 
                     // Ensure checkout is after checkin
                     if ($checkoutOne->greaterThan($checkinOne)) {
-                        $minutesOne = $checkoutOne->diffInMinutes($checkinOne); // Minutes difference
+                        $minutesOne = $checkoutOne->diffInMinutes($checkinOne, true); // Minutes difference
                         $totalMinutes += $minutesOne;
                     } else {
                         Log::error('Checkout time is earlier than checkin time for morning shift.');
@@ -119,6 +121,11 @@ class ListAttendances extends ListRecords
             // Handle the case where the employee is not found
             Log::error('Employee not found for attendance code: ' . $data['attendance_code']);
             // You could also return a user-friendly error message or feedback here
+            Notification::make()
+        ->title('Error')
+        ->body('Employee not found for the provided attendance code.')
+        ->danger() // You can use ->success() for success messages
+        ->send();
         }
     }),
 

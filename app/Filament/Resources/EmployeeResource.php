@@ -17,6 +17,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Collection;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Relationship;
@@ -56,6 +57,7 @@ class EmployeeResource extends Resource
 
                     TextInput::make('attendance_code')
                     ->label('Attendance Code')
+                    ->unique(ignoreRecord: true)
                     ->required(fn (string $context) => $context === 'create')
                     ])->columns(3)->collapsible(true),
 
@@ -65,6 +67,7 @@ class EmployeeResource extends Resource
                             ->label('Province')
                             ->required(fn (string $context) => $context === 'create')
                             ->options([
+                            'Sarangani' => 'Sarangani',
                             'South Cotabato' => 'South Cotabato',
                             ])->native(false),
 
@@ -79,6 +82,7 @@ class EmployeeResource extends Resource
                             'Surallah' => 'Surallah',
                             'Lake Sebu' => 'Lake Sebu',
                             'Banga' => 'Banga',
+                            'Glan' => 'Glan'
                         ])->native(false),
 
                     Select::make('barangay')
@@ -92,6 +96,7 @@ class EmployeeResource extends Resource
                             'Liberty' => 'Liberty',
                             'Lamian' => 'Lamian',
                             'Rizal' => 'Rizal',
+                            'Gumasa' => 'Gumasa',
                         ])->native(false),
 
                     Select::make('street')
@@ -104,38 +109,58 @@ class EmployeeResource extends Resource
                             'Polomolok Road' => 'Polomolok Road',
                             'Apolinario Mabini St.' => 'Apolinario Mabini St.',
                             'Bonifacio St.' => 'Bonifacio St.',
+                            'Clemente Lapaz Street' => 'Clemente Lapaz Street',
                         ])->native(false),
                 ])->columns(4)->collapsible(true),
 
 
 
-                Section::make('Position/Project/Work Schedule')
+                Section::make()
                 ->schema([
-                    Select::make('position_id')
-                            ->label('Position')
+                    // Select::make('position_id')
+                    //         ->label('Position')
+                            
+                    //         ->relationship('position', 'PositionName')
+                    //         ->native(false),
+                    TextInput::make('TaxIdentificationNumber')
+                    ->label('Tax ID Number')
+                    ->required(fn (string $context) => $context === 'create')
+                    ->unique(ignoreRecord: true),
+
+                            TextInput::make('SSSNumber')
+                            ->label('SSS Number')
                             ->required(fn (string $context) => $context === 'create')
-                            ->relationship('position', 'PositionName')
-                            ->native(false),
+                            ->unique(ignoreRecord: true),
 
-                    Select::make('project_id')
-                        ->label('Project')
-                        ->required(fn (string $context) => $context === 'create')
-                        ->relationship('project', 'ProjectName')
-                        ->native(false)
-                        ->reactive()
-                        ->afterStateUpdated(fn ($state, callable $set) => $set('status', $state ? 'Assigned' : 'Available'))
-                        ,
+                            TextInput::make('PhilHealthNumber')
+                            ->label('PhilHealth Number')
+                            ->required(fn (string $context) => $context === 'create')
+                            ->unique(ignoreRecord: true),
 
-                    Select::make('schedule_id')
-                        ->label('Work Schedule')
-                        ->required(fn (string $context) => $context === 'create')
-                        ->relationship('schedule', 'ScheduleName')
-                        ->native(false),
+                            TextInput::make('PagibigNumber')
+                            ->label('Pagibig Number')
+                            ->required(fn (string $context) => $context === 'create')
+                            ->unique(ignoreRecord: true),
+                    // Select::make('project_id')
+                    //     ->label('Project')
+                        
+                    //     ->relationship('project', 'ProjectName')
+                    //     ->native(false)
+                    //     ->reactive()
+                    //     ->afterStateUpdated(fn ($state, callable $set) => $set('status', $state ? 'Assigned' : 'Available'))
+                    //     ,
 
-                    Select::make('overtime_id')
-                        ->label('Overtime')
-                        ->relationship('overtime', 'Reason')
-                        ->native(false),
+                    // Select::make('schedule_id')
+                    //     ->label('Work Schedule')
+                        
+                    //     ->relationship('schedule', 'ScheduleName')
+                    //     ->native(false),
+
+                    // Select::make('overtime_id')
+                    //     ->label('Overtime')
+                    //     ->relationship('overtime', 'Reason')
+                    //     ->native(false),
+
                 ])->columns(4)->collapsible(true),
 
 
@@ -155,7 +180,7 @@ class EmployeeResource extends Resource
                             'Assigned' => 'Assigned',
                             'Available' => 'Available',
 
-                        ]),
+                        ])->default('Available'),
 
                     
                         Select::make('employment_type')
@@ -179,6 +204,7 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
+                
                 TextColumn::make('full_name')
                 ->label('Name')
                 ->formatStateUsing(fn ($record) => $record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name)
@@ -189,10 +215,11 @@ class EmployeeResource extends Resource
                 ->label('Address')
                 ->formatStateUsing(fn ($record) => $record->full_address),
 
-                TextColumn::make('position.PositionName'),
-                TextColumn::make('project.ProjectName'),
-                TextColumn::make('schedule.ScheduleName'),
-                TextColumn::make('overtime.Reason'),
+                TextColumn::make('TaxIdentificationNumber'),
+                TextColumn::make('SSSNumber'),
+                TextColumn::make('PhilHealthNumber'),
+                TextColumn::make('PagibigNumber'),
+
                 TextColumn::make('contact_number'),
                 TextColumn::make('status'),
 
@@ -209,14 +236,6 @@ class EmployeeResource extends Resource
                 ->searchable()
                 ->multiple()
                 ->preload(),
-
-                SelectFilter::make('project_id')
-                ->label('Filter by Project')
-                ->relationship('project', 'ProjectName')
-                ->searchable()
-                ->multiple()
-                ->preload()
-                ,
 
                 SelectFilter::make('position_id')
                 ->label('Filter by Position')
@@ -235,7 +254,7 @@ class EmployeeResource extends Resource
                 SelectFilter::make('status')
                 ->label('Filter by Status')
                 ->options([
-                    'Asigned' => 'Asigned',
+                    'Assigned' => 'Assigned',
                     'Available' => 'Available',
 
                 ])
@@ -275,16 +294,16 @@ class EmployeeResource extends Resource
                 BulkAction::make('assign_to_position')
                 ->label('Assign to Position')
                 ->form([
-                    Select::make('project_id')
-                        ->label('Project')
-                        ->relationship('project', 'ProjectName')
+                    Select::make('position_id')
+                        ->label('Position')
+                        ->relationship('position', 'PositionName')
                         ->required()
                 ])
                 ->action(function (array $data, Collection $records) {
-                    $projectId = $data['project_id'];
+                    $projectId = $data['position_id'];
 
                     foreach ($records as $record) {
-                        $record->update(['project_id' => $projectId]);
+                        $record->update(['position_id' => $projectId]);
                     }
                 })
                 ->deselectRecordsAfterCompletion()
@@ -324,6 +343,7 @@ class EmployeeResource extends Resource
             'index' => Pages\ListEmployees::route('/'),
             'create' => Pages\CreateEmployee::route('/create'),
             'edit' => Pages\EditEmployee::route('/{record}/edit'),
+            'show-employees' => ProjectResource\Pages\ShowEmployeesPage::route('/show-employees'),
         ];
     }
 }

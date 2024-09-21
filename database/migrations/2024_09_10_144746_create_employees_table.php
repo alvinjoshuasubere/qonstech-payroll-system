@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('position_id');
-            $table->unsignedBigInteger('overtime_id'); 
-            $table->unsignedBigInteger('project_id');
-            $table->unsignedBigInteger('schedule_id');
+            $table->unsignedBigInteger('position_id')->nullable();
+            $table->unsignedBigInteger('overtime_id')->nullable(); 
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->unsignedBigInteger('schedule_id')->nullable();
             
             
             $table->string('first_name', 50);

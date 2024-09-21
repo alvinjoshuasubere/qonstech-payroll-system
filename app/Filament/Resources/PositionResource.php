@@ -23,6 +23,8 @@ class PositionResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    // protected static ?string $navigationGroup = "Projects/Assign";
+
     public static function form(Form $form): Form
     {
         return $form
