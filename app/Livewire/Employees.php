@@ -11,11 +11,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Resources\Components\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class Employees extends BaseWidget
 {
+
     public function table(Table $table): Table
-    {
+    {   
         return $table
             ->query(
                 Employee::query()->where('status', 'Available')
@@ -86,8 +89,9 @@ class Employees extends BaseWidget
             ])//end of filter
 
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
+
 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

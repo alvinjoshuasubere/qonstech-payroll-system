@@ -14,10 +14,12 @@ class Overtime extends Model
 
     protected $fillable = [
         'Reason',
+        'EmployeeID',
         'Checkin',
         'Checkout',
         'Date',
         'Status',
+        'OvertimeRate',
     ];
 
     public function employees()
