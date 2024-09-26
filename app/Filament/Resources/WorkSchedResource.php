@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\WorkSchedResource\Pages;
 use App\Filament\Resources\WorkSchedResource\RelationManagers;
 use App\Models\WorkSched;
+use Doctrine\DBAL\Schema\Schema;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -39,12 +40,21 @@ class WorkSchedResource extends Resource
     {
         return $form
             ->schema([
+                Section::make('')
+                ->schema([
+                    TextInput::make('ScheduleName')
+                    ->label('Schedule Name')
+                    ->required(fn (string $context) => $context === 'create')
+                    ->unique(ignoreRecord: true)
+                    ->rules('regex:/^[^\d]*$/'),
 
-                TextInput::make('ScheduleName')
-                ->label('Schedule Name')
-                ->required(fn (string $context) => $context === 'create')
-                ->unique(ignoreRecord: true)
-                ->rules('regex:/^[^\d]*$/'),
+                    TextInput::make('RegularHours')
+                    ->label('Regular Hours')
+                    ->numeric()
+                    ->maxLength(2)
+                    ->maxValue(12)
+                ])->compact()->columns(),
+                
 
                 Section::make('Days')
                 ->schema([
@@ -56,37 +66,39 @@ class WorkSchedResource extends Resource
                     Toggle::make('saturday'),
                     Toggle::make('sunday'),
                 ])->compact()->columns(7)->collapsible(true),
-            
-                Section::make('Morning Shift')
+                
+                Section::make('')
                 ->schema([
-                    TextInput::make('CheckinOne')
-                        ->label('Check-in Time')
-                        ->type('time')
-                        ->required(fn (string $context) => $context === 'create'),
-                    
-                    TextInput::make('CheckoutOne')
-                        ->label('Check-out Time')
-                        ->type('time')
-                        ->after('CheckinOne')
-                        ->required(fn (string $context) => $context === 'create'),
+                    Section::make('Morning Shift')
+                    ->schema([
+                        TextInput::make('CheckinOne')
+                            ->label('Check-in Time')
+                            ->type('time')
+                            ->required(fn (string $context) => $context === 'create'),
+                        
+                        TextInput::make('CheckoutOne')
+                            ->label('Check-out Time')
+                            ->type('time')
+                            ->after('CheckinOne')
+                            ->required(fn (string $context) => $context === 'create'),
 
-                ])->collapsible(true),
-            
-            Section::make('Afternoon Shift')
-                ->schema([
-                    TextInput::make('CheckinTwo')
-                        ->label('Check-in Time')
-                        ->type('time')
-                        ->required(fn (string $context) => $context === 'create'),
-                    
-                    TextInput::make('CheckoutTwo')
-                        ->label('Check-out Time')
-                        ->type('time')
-                        ->after('CheckinTwo')
-                        ->required(fn (string $context) => $context === 'create'),
-                ])->collapsible(true),
+                    ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                
+                    Section::make('Afternoon Shift')
+                    ->schema([
+                        TextInput::make('CheckinTwo')
+                            ->label('Check-in Time')
+                            ->type('time')
+                            ->required(fn (string $context) => $context === 'create'),
+                        
+                        TextInput::make('CheckoutTwo')
+                            ->label('Check-out Time')
+                            ->type('time')
+                            ->after('CheckinTwo')
+                            ->required(fn (string $context) => $context === 'create'),
+                    ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
 
-
+                ])->columns(2)->compact(),
             ]);        
     }
 

@@ -4,8 +4,15 @@ namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
 use App\Filament\Pages\ShowAvailableEmployees;
 use Filament\Actions\Modal\Actions\Action;
+use Filament\Actions\StaticAction;
+use App\Models\WorkSched;
+use App\Models\Employee;
+use Filament\Notifications\Notification;
 use Filament\Forms;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Form;
@@ -15,6 +22,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use PhpParser\Node\Stmt\Label;
+
+use function Laravel\Prompts\form;
 
 class EmployeesRelationManager extends RelationManager
 {
@@ -39,9 +49,11 @@ class EmployeesRelationManager extends RelationManager
                 ->label('Name')
                 ->formatStateUsing(fn ($record) => $record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name)
                 ->sortable()
-                ->searchable(),
+                ->searchable(['first_name', 'middle_name', 'last_name']),
 
                 Tables\Columns\TextColumn::make('position.PositionName'),
+
+                Tables\Columns\TextColumn::make('schedule.ScheduleName'),
 
                 Tables\Columns\TextColumn::make('status'),
             ])
@@ -68,42 +80,116 @@ class EmployeesRelationManager extends RelationManager
                 Tables\Actions\Action::make('customPage')
                 ->label('Assign Employees')
                 ->url(ShowAvailableEmployees::getUrl()),
-
-                Tables\Actions\Action::make('customPage2')
-    ->label('Add Employee')
-    ->form([
-        CheckboxList::make('employees')
-            ->options(
-                \App\Models\Employee::query()
-                    ->where('status', 'available')
-                    ->with('position')
-                    ->get()
-                    ->mapWithKeys(function ($employee) {
-                        return [
-                            $employee->id => $employee->first_name . ' (' . ucfirst($employee->status) . ', ' . ($employee->position->PositionName ?? 'No Position') . ')',
-                        ];
-                    })
-                    ->toArray()
-            )
-            ->searchable()
-            ->required()
-    ])
-    ->action(function (array $data) {
-        // Assuming $data['employees'] holds the selected employee IDs
-        $selectedEmployees = $data['employees'];
-        $projectId = $data['project_id']; // Assuming 'project_id' is in the form data
-
-        // Find the employees and update their project and status
-        \App\Models\Employee::whereIn('id', $selectedEmployees)
-            ->update(['project_id' => $projectId, 'status' => 'Assigned']);
-    })
-    ->deselectRecordsAfterCompletion()
-    ->requiresConfirmation(),
                 
             ])
+
             ->actions([
+                Tables\Actions\Action::make('create')
+                    ->label('Work Schedule')
+                    ->form(fn ($record) => [
+
+                        Forms\Components\TextInput::make('id')
+                        ->label('Employee ID')
+                        ->default($record->id)
+                        ->readOnly()
+                        ->hidden(),
+
+                        Forms\Components\TextInput::make('first_name')
+                        ->Label('First Name')
+                        ->default($record->full_name)
+                        ->readOnly(),
+
+                        Section::make('')
+                        ->schema([
+                            TextInput::make('ScheduleName')
+                            ->label('Schedule Name')
+                            ->required(fn (string $context) => $context === 'create')
+                            ->rules('regex:/^[^\d]*$/'),
+        
+                            TextInput::make('RegularHours')
+                            ->label('Regular Hours')
+                            ->numeric()
+                            ->maxLength(2)
+                            ->maxValue(12)
+                        ])->compact()->columns(),
+                        
+        
+                        Section::make('Days')
+                        ->schema([
+                            Toggle::make('monday'),
+                            Toggle::make('tuesday'),
+                            Toggle::make('wednesday'),
+                            Toggle::make('thursday'),
+                            Toggle::make('friday'),
+                            Toggle::make('saturday'),
+                            Toggle::make('sunday'),
+                        ])->compact()->columns(7)->collapsible(true),
+                        
+                        Section::make('')
+                        ->schema([
+                            Section::make('Morning Shift')
+                            ->schema([
+                                TextInput::make('CheckinOne')
+                                    ->label('Check-in Time')
+                                    ->type('time')
+                                    ->required(fn (string $context) => $context === 'create'),
+                                
+                                TextInput::make('CheckoutOne')
+                                    ->label('Check-out Time')
+                                    ->type('time')
+                                    ->after('CheckinOne')
+                                    ->required(fn (string $context) => $context === 'create'),
+        
+                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                        
+                            Section::make('Afternoon Shift')
+                            ->schema([
+                                TextInput::make('CheckinTwo')
+                                    ->label('Check-in Time')
+                                    ->type('time')
+                                    ->required(fn (string $context) => $context === 'create'),
+                                
+                                TextInput::make('CheckoutTwo')
+                                    ->label('Check-out Time')
+                                    ->type('time')
+                                    ->after('CheckinTwo')
+                                    ->required(fn (string $context) => $context === 'create'),
+                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+        
+                        ])->columns(2)->compact(),
+                    ])
+                    ->action(function ($record, $data) {
+                        // Create a new WorkSchedule
+                        $schedule = WorkSched::create([
+                        'ScheduleName' => $data['ScheduleName'],
+                        'RegularHours' => $data['RegularHours'],
+                        'monday' => $data['monday'] ?? false,
+                        'tuesday' => $data['tuesday'] ?? false,
+                        'wednesday' => $data['wednesday'] ?? false,
+                        'thursday' => $data['thursday'] ?? false,
+                        'friday' => $data['friday'] ?? false,
+                        'saturday' => $data['saturday'] ?? false,
+                        'sunday' => $data['sunday'] ?? false,
+                        'CheckinOne' => $data['CheckinOne'],
+                        'CheckoutOne' => $data['CheckoutOne'],
+                        'CheckinTwo' => $data['CheckinTwo'],
+                        'CheckoutTwo' => $data['CheckoutTwo'],
+                        ]);
+    
+                        // Optionally, update the employee's current schedule in Employee model
+                        $record->update([
+                            'schedule_id' => $schedule->id,
+                        ]);
+
+                        Notification::make()
+                        ->title('Work Schedule Added')
+                        ->success()
+                        ->body('The work schedule has been successfully added.')
+                        ->send();
+                    }),
 
             ])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('OvertimeID'); 
             $table->decimal('Holiday', 10, 2); 
             $table->decimal('Leave', 10, 2);
+            $table->decimal('Total', 10, 2);
             $table->timestamps();
 
 

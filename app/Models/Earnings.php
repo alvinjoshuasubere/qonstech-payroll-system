@@ -16,6 +16,7 @@ class Earnings extends Model
         'OvertimeID',
         'Holiday',
         'Leave',
+        'Total',
     ];
 
     public function employee()

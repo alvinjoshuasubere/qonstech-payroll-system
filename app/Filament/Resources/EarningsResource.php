@@ -6,6 +6,7 @@ use App\Filament\Resources\EarningsResource\Pages;
 use App\Filament\Resources\EarningsResource\RelationManagers;
 use App\Models\Earnings;
 use App\Models\Employee;
+use App\Models\Overtime;
 use Faker\Provider\ar_EG\Text;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
@@ -27,6 +28,11 @@ class EarningsResource extends Resource
 
     protected static ?string $navigationGroup = "Employee/Deduction/Earnings";
 
+    public static function calculateTotal($holiday, $leave, $overtimeRate)
+    {
+        return $holiday + $leave + $overtimeRate;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -34,34 +40,63 @@ class EarningsResource extends Resource
                 Section::make('Earnings Information')
                     ->schema([
                         Select::make('EmployeeID')
-                            ->label('Employee')
-                            ->options(Employee::all()->pluck('full_name', 'id'))
-                            ->required()
-                            ->preload()
-                            ->searchable(),
-
-                        Select::make('OvertimeID')
-                            ->label('Overtime')
-                            ->relationship('overtime', 'Reason')
-                            ->required()
-                            ->preload()
-                            ->searchable(),
-
-                        TextInput::make('Holiday')
-                            ->label('Holiday Pay')
-                            ->required()
-                            ->numeric(),
-
-                        TextInput::make('Leave')
-                            ->label('Leave Pay')
-                            ->required()
-                            ->numeric(),
+                        ->label('Employee')
+                        ->options(Employee::all()->pluck('full_name', 'id'))
+                        ->required()
+                        ->preload()
+                        ->searchable(),
+                
+                    Select::make('OvertimeID')
+                        ->label('Overtime')
+                        ->relationship('overtime', 'Reason')
+                        ->required()
+                        ->preload()
+                        ->searchable()
+                        ->reactive()  // Make this field reactive to changes
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            // Assuming you want to get the OvertimeRate for the selected overtime
+                            $overtimeRate = Overtime::find($state)?->OvertimeRate ?? 0;
+                            $set('OvertimeRate', $overtimeRate);  // Store the rate for calculation
+                            // Recalculate the total after OvertimeRate is updatedcalculateTotal'.
+                            $set('Total', self::calculateTotal($get('Holiday'), $get('Leave'), $overtimeRate));
+                        }),
+                
+                    TextInput::make('OvertimeRate')
+                        ->label('Overtime Rate')
+                        ->readOnly()  // Displayed but not editable
+                        ->numeric()
+                        ->default(0),
+                
+                    TextInput::make('Holiday')
+                        ->label('Holiday Pay')
+                        ->required()
+                        ->numeric()
+                        ->reactive()  // Make this field reactive to changes
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            // Recalculate the total after Holiday Pay is updated
+                            $set('Total', self::calculateTotal($state, $get('Leave'), $get('OvertimeRate')));
+                        }),
+                
+                    TextInput::make('Leave')
+                        ->label('Leave Pay')
+                        ->required()
+                        ->numeric()
+                        ->reactive()  // Make this field reactive to changes
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            // Recalculate the total after Leave Pay is updated
+                            $set('Total', self::calculateTotal($get('Holiday'), $state, $get('OvertimeRate')));
+                        }),
+                
+                    TextInput::make('Total')
+                        ->label('Total')
+                        ->readOnly(),
 
                         
                     ])->columns(2)->collapsible(true),
                 
             ]);
     }
+    
 
     public static function table(Table $table): Table
     {
@@ -70,14 +105,16 @@ class EarningsResource extends Resource
                 TextColumn::make('employee.full_name')
                     ->label('Employee'),
 
-                TextColumn::make('overtime.Reason')
-                    ->label('Overtime'),
+                TextColumn::make('overtime.OvertimeRate')
+                    ->label('Overtime Rate Total'),
                 
                 TextColumn::make('Holiday')
                     ->label('Holiday Pay'),
 
                 TextColumn::make('Leave')
                     ->label('Leave Pay'),
+
+                    TextColumn::make('Total')
             ])
             ->filters([
                 

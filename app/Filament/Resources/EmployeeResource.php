@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\Employee;
+use Faker\Provider\ar_EG\Text;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -22,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Relationship;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use PhpParser\Node\Stmt\Label;
 
 class EmployeeResource extends Resource
 {
@@ -215,10 +217,14 @@ class EmployeeResource extends Resource
                 ->label('Address')
                 ->formatStateUsing(fn ($record) => $record->full_address),
 
-                TextColumn::make('TaxIdentificationNumber'),
-                TextColumn::make('SSSNumber'),
-                TextColumn::make('PhilHealthNumber'),
-                TextColumn::make('PagibigNumber'),
+                TextColumn::make('TaxIdentificationNumber')->label('Tax Number'),
+                TextColumn::make('SSSNumber')->label('SSS Number'),
+                TextColumn::make('PhilHealthNumber')->label('PhilHealth Number'),
+                TextColumn::make('PagibigNumber')->label('Pagibig Number'),
+
+                TextColumn::make('project.ProjectName'),
+                TextColumn::make('position.PositionName'),
+                TextColumn::make('overtime.Reason'),
 
                 TextColumn::make('contact_number'),
                 TextColumn::make('status'),

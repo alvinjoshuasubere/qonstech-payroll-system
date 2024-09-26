@@ -58,7 +58,7 @@ class Employee extends Model
      */
     public function schedule()
     {
-        return $this->belongsTo(WorkSched::class);
+        return $this->belongsTo(WorkSched::class, 'schedule_id');
     }
 
     public function overtime()

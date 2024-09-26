@@ -23,6 +23,8 @@ return new class extends Migration
             $table->boolean('saturday')->default(false);
             $table->boolean('sunday')->default(false);
 
+
+            $table->decimal('RegularHours', 5, 2);
             $table->time('CheckinOne');
             $table->time('CheckoutOne');
             $table->time('CheckinTwo');

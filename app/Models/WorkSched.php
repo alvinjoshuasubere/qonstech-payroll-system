@@ -15,6 +15,9 @@ class WorkSched extends Model
 
     protected $fillable = [
         'ScheduleName',
+
+        'RegularHours',
+        
         'monday',
         'tuesday',
         'wednesday',
@@ -22,6 +25,7 @@ class WorkSched extends Model
         'friday',
         'saturday',
         'sunday',
+
         'CheckinOne',
         'CheckoutOne',
         'CheckinTwo',
@@ -37,4 +41,9 @@ class WorkSched extends Model
         'saturday' => 'boolean',
         'sunday' => 'boolean',
     ];
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'schedule_id');
+    }
 }

@@ -23,6 +23,8 @@ class LoanResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $title = 'Loan';
+
 
     public static function form(Form $form): Form
     {
@@ -113,7 +115,7 @@ class LoanResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->header(fn () => view('filament.loan-total', ['totalLoanAmount' => $totalLoanAmount])) // Render total)
+            // ->header(fn () => view('filament.loan-total', ['totalLoanAmount' => $totalLoanAmount])) // Render total)
             ;
     }
 
