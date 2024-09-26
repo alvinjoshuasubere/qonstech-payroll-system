@@ -206,7 +206,7 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
-                
+                TextColumn::make('id')->label('Employee ID')->sortable(),
                 TextColumn::make('full_name')
                 ->label('Name')
                 ->formatStateUsing(fn ($record) => $record->first_name . ' ' . ($record->middle_name ? $record->middle_name . ' ' : '') . $record->last_name)
