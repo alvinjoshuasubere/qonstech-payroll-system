@@ -36,18 +36,18 @@ class PositionResource extends Resource
 
         TextInput::make('HourlyRate')
             ->required(fn (string $context) => $context === 'create')
-            ->numeric() // Ensure the value is numeric
-            ->reactive() // This makes it respond to changes
+            ->numeric() 
+            ->reactive() 
             ->afterStateUpdated(function (callable $set, $state) {
-                // Assuming 8 working hours per day and 22 working days per month
+                
                 $monthlySalary = $state * 8 * 22; 
-                $set('MonthlySalary', $monthlySalary); // Set the MonthlySalary field
+                $set('MonthlySalary', $monthlySalary); 
             }),
 
             TextInput::make('MonthlySalary')
                 ->required(fn (string $context) => $context === 'create')
-                ->numeric() // Ensure the value is numeric
-                ->readOnly(), // Make it uneditable but still submitted
+                ->numeric() 
+                ->readOnly(), 
                 
             ]);
     }

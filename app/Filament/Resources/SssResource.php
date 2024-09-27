@@ -47,7 +47,6 @@ class SssResource extends Resource
                 ->label('Maximum Salary')
                 ->required(fn (string $context) => $context === 'create')
                 ->numeric()
-                ->after('MinSalary')
                 ->unique(ignoreRecord: true)
                 ,
 

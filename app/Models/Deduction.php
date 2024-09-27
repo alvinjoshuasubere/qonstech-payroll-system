@@ -11,20 +11,11 @@ class Deduction extends Model
 
     protected $table = 'deductions';
 
-    // Allow mass assignment for the specified attributes
+    
     protected $fillable = [
         'employeeID',
-        'SSS_ID',
-        'PHILHEALTH_ID',
-        'PAGIBIG_ID',
-        'SSS_Monthly_Payment',
-        'PHILHEALTH_Monthly_Payment',
-        'Pagibig_Monthly_Payment',
-        'CashAdvance',
-        'Undertime',
-        'SalaryAdjustment',
-        'Loan',
-        'TotalDeduction',
+        'DeductionType',
+        'Amount',
     ];
 
     // Define the relationships
@@ -33,18 +24,4 @@ class Deduction extends Model
         return $this->belongsTo(Employee::class, 'employeeID');
     }
 
-    public function sss()
-    {
-        return $this->belongsTo(SSS::class, 'SSS_ID');
-    }
-
-    public function philhealth()
-    {
-        return $this->belongsTo(PhilHealth::class, 'PHILHEALTH_ID');
-    }
-
-    public function pagibig()
-    {
-        return $this->belongsTo(Pagibig::class, 'PAGIBIG_ID');
-    }
 }

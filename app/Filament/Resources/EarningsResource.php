@@ -52,18 +52,18 @@ class EarningsResource extends Resource
                         ->required()
                         ->preload()
                         ->searchable()
-                        ->reactive()  // Make this field reactive to changes
+                        ->reactive()  
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                            // Assuming you want to get the OvertimeRate for the selected overtime
+                           
                             $overtimeRate = Overtime::find($state)?->OvertimeRate ?? 0;
-                            $set('OvertimeRate', $overtimeRate);  // Store the rate for calculation
-                            // Recalculate the total after OvertimeRate is updatedcalculateTotal'.
+                            $set('OvertimeRate', $overtimeRate);  
+                            
                             $set('Total', self::calculateTotal($get('Holiday'), $get('Leave'), $overtimeRate));
                         }),
                 
                     TextInput::make('OvertimeRate')
                         ->label('Overtime Rate')
-                        ->readOnly()  // Displayed but not editable
+                        ->readOnly()  
                         ->numeric()
                         ->default(0),
                 
@@ -71,9 +71,9 @@ class EarningsResource extends Resource
                         ->label('Holiday Pay')
                         ->required()
                         ->numeric()
-                        ->reactive()  // Make this field reactive to changes
+                        ->reactive()  
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                            // Recalculate the total after Holiday Pay is updated
+                            
                             $set('Total', self::calculateTotal($state, $get('Leave'), $get('OvertimeRate')));
                         }),
                 
@@ -81,9 +81,9 @@ class EarningsResource extends Resource
                         ->label('Leave Pay')
                         ->required()
                         ->numeric()
-                        ->reactive()  // Make this field reactive to changes
+                        ->reactive() 
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                            // Recalculate the total after Leave Pay is updated
+                            
                             $set('Total', self::calculateTotal($get('Holiday'), $state, $get('OvertimeRate')));
                         }),
                 

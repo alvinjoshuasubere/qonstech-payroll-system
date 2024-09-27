@@ -15,20 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employeeID')->constrained('employees')->onDelete('cascade');
     
-            $table->foreignId('SSS_ID')->constrained('sss')->onDelete('cascade');
-            $table->foreignId('PHILHEALTH_ID')->constrained('philhealth')->onDelete('cascade');
-            $table->foreignId('PAGIBIG_ID')->constrained('pagibig')->onDelete('cascade');
+            $table->string('DeductionType');
+            $table->decimal('Amount', 10, 2);
             
-            $table->decimal('SSS_Monthly_Payment', 10, 2);
-            $table->decimal('PHILHEALTH_Monthly_Payment', 10, 2);
-            $table->decimal('Pagibig_Monthly_Payment', 10, 2);
-            
-            $table->decimal('CashAdvance', 10, 2)->nullable();
-            $table->decimal('Undertime', 10, 2)->nullable();
-            $table->decimal('SalaryAdjustment', 10, 2)->nullable();
-            $table->decimal('Loan', 10, 2)->nullable();
-            
-            $table->decimal('TotalDeduction', 10, 2);
             $table->timestamps();
         });
     }
