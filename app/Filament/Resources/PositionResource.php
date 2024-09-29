@@ -47,8 +47,7 @@ class PositionResource extends Resource
             TextInput::make('MonthlySalary')
                 ->required(fn (string $context) => $context === 'create')
                 ->numeric() 
-                ->readOnly(), 
-                
+                ->readOnly(),      
             ]);
     }
 

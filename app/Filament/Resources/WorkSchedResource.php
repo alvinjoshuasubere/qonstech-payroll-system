@@ -71,6 +71,7 @@ class WorkSchedResource extends Resource
                 ->schema([
                     Section::make('Morning Shift')
                     ->schema([
+                        
                         TextInput::make('CheckinOne')
                             ->label('Check-in Time')
                             ->type('time')
@@ -106,6 +107,7 @@ class WorkSchedResource extends Resource
     {   
         return $table
             ->columns([
+                TextColumn::make('id'),
                 TextColumn::make('ScheduleName')->searchable(),
                 IconColumn::make('monday')->boolean()->label('Monday'),
                 IconColumn::make('tuesday')->boolean()->label('Tuesday'),

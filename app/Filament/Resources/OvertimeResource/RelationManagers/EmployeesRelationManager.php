@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OvertimeResource\RelationManagers;
 
 use App\Filament\Pages\ViewEmployeeOvertime;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -38,6 +39,8 @@ class EmployeesRelationManager extends RelationManager
                 ->sortable()
                 ->searchable(),
 
+                Tables\Columns\TextColumn::make('schedule.ScheduleName'),
+
                 Tables\Columns\TextColumn::make('position.PositionName'),
 
                 Tables\Columns\TextColumn::make('project.ProjectName'),
@@ -67,6 +70,25 @@ class EmployeesRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation(),
                 ]),
+
+
+                BulkAction::make('assign_to_schedule')
+                        ->label('Assign to Work Schedule')
+                        ->form([
+                            Select::make('schedule_id')
+                                ->label('Work Schedule')
+                                ->relationship('schedule', 'ScheduleName')
+                                ->required()
+                        ])
+                        ->action(function (array $data, Collection $records) {
+                            $scheduleId = $data['schedule_id'];
+        
+                            foreach ($records as $record) {
+                                $record->update(['schedule_id' => $scheduleId]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
             ]);
     }
 }

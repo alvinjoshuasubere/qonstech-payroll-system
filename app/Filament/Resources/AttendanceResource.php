@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use App\Models\Employee;
 use App\Models\Project;
+use App\Models\WorkSched;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -87,25 +88,22 @@ class AttendanceResource extends Resource
                     });
                 }),
 
+                SelectFilter::make('schedule_id')
+                ->label('Select Work Schedule')
+                ->options(WorkSched::all()->pluck('ScheduleName', 'id'))
+                
+                ->query(function (Builder $query, array $data) {
+                    if (empty($data['value'])) {
+                        
+                        return $query;
+                    }
+                    return $query->whereHas('employee.schedule', function (Builder $query) use ($data) {
+                        $query->where('id', $data['value']);
+                    });
+                }),
 
-                // Filter::make('date')
-                // ->label('Date')
-                // ->form([
-                    
-                //     Forms\Components\DatePicker::make('date_from')
-                //         ->label('From Date'),
-                //     Forms\Components\DatePicker::make('date_to')
-                //         ->label('To Date'),
-                // ])
-                // ->query(function (Builder $query, array $data) {
-                //     if (!empty($data['date_from'])) {
-                //         $query->where('Date', '>=', $data['date_from']);
-                //     }
-                //     if (!empty($data['date_to'])) {
-                //         $query->where('Date', '<=', $data['date_to']);
-                //     }
-                //     return $query;
-                // })
+
+               
             ], layout: FiltersLayout::AboveContent)
 
 

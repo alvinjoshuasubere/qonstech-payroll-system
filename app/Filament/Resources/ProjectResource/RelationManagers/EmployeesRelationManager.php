@@ -12,6 +12,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
@@ -38,6 +39,12 @@ class EmployeesRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255),
             ]);
+    }
+
+    protected function getProjectName(): string
+    {
+        // Replace this with the actual logic to get the project name
+        return 'YourProjectName';
     }
 
     public function table(Table $table): Table
@@ -84,109 +91,109 @@ class EmployeesRelationManager extends RelationManager
             ])
 
             ->actions([
-                Tables\Actions\Action::make('create')
-                    ->label('Work Schedule')
-                    ->form(fn ($record) => [
+                // Tables\Actions\Action::make('create')
+                //     ->label('Work Schedule')
+                //     ->form(fn ($record) => [
 
-                        Forms\Components\TextInput::make('id')
-                        ->label('Employee ID')
-                        ->default($record->id)
-                        ->readOnly()
-                        ->hidden(),
+                //         Forms\Components\TextInput::make('id')
+                //         ->label('Employee ID')
+                //         ->default($record->id)
+                //         ->readOnly()
+                //         ->hidden(),
 
-                        Forms\Components\TextInput::make('first_name')
-                        ->Label('First Name')
-                        ->default($record->full_name)
-                        ->readOnly(),
+                //         Forms\Components\TextInput::make('first_name')
+                //         ->Label('First Name')
+                //         ->default($record->full_name)
+                //         ->readOnly(),
 
-                        Section::make('')
-                        ->schema([
-                            TextInput::make('ScheduleName')
-                            ->label('Schedule Name')
-                            ->required(fn (string $context) => $context === 'create')
-                            ->rules('regex:/^[^\d]*$/'),
+                //         Section::make('')
+                //         ->schema([
+                //             TextInput::make('ScheduleName')
+                //             ->label('Schedule Name')
+                //             ->required(fn (string $context) => $context === 'create')
+                //             ->rules('regex:/^[^\d]*$/'),
         
-                            TextInput::make('RegularHours')
-                            ->label('Regular Hours')
-                            ->numeric()
-                            ->maxLength(2)
-                            ->maxValue(12)
-                        ])->compact()->columns(),
+                //             TextInput::make('RegularHours')
+                //             ->label('Regular Hours')
+                //             ->numeric()
+                //             ->maxLength(2)
+                //             ->maxValue(12)
+                //         ])->compact()->columns(),
                         
         
-                        Section::make('Days')
-                        ->schema([
-                            Toggle::make('monday'),
-                            Toggle::make('tuesday'),
-                            Toggle::make('wednesday'),
-                            Toggle::make('thursday'),
-                            Toggle::make('friday'),
-                            Toggle::make('saturday'),
-                            Toggle::make('sunday'),
-                        ])->compact()->columns(7)->collapsible(true),
+                //         Section::make('Days')
+                //         ->schema([
+                //             Toggle::make('monday'),
+                //             Toggle::make('tuesday'),
+                //             Toggle::make('wednesday'),
+                //             Toggle::make('thursday'),
+                //             Toggle::make('friday'),
+                //             Toggle::make('saturday'),
+                //             Toggle::make('sunday'),
+                //         ])->compact()->columns(7)->collapsible(true),
                         
-                        Section::make('')
-                        ->schema([
-                            Section::make('Morning Shift')
-                            ->schema([
-                                TextInput::make('CheckinOne')
-                                    ->label('Check-in Time')
-                                    ->type('time')
-                                    ->required(fn (string $context) => $context === 'create'),
+                //         Section::make('')
+                //         ->schema([
+                //             Section::make('Morning Shift')
+                //             ->schema([
+                //                 TextInput::make('CheckinOne')
+                //                     ->label('Check-in Time')
+                //                     ->type('time')
+                //                     ->required(fn (string $context) => $context === 'create'),
                                 
-                                TextInput::make('CheckoutOne')
-                                    ->label('Check-out Time')
-                                    ->type('time')
-                                    ->after('CheckinOne')
-                                    ->required(fn (string $context) => $context === 'create'),
+                //                 TextInput::make('CheckoutOne')
+                //                     ->label('Check-out Time')
+                //                     ->type('time')
+                //                     ->after('CheckinOne')
+                //                     ->required(fn (string $context) => $context === 'create'),
         
-                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                //             ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
                         
-                            Section::make('Afternoon Shift')
-                            ->schema([
-                                TextInput::make('CheckinTwo')
-                                    ->label('Check-in Time')
-                                    ->type('time')
-                                    ->required(fn (string $context) => $context === 'create'),
+                //             Section::make('Afternoon Shift')
+                //             ->schema([
+                //                 TextInput::make('CheckinTwo')
+                //                     ->label('Check-in Time')
+                //                     ->type('time')
+                //                     ->required(fn (string $context) => $context === 'create'),
                                 
-                                TextInput::make('CheckoutTwo')
-                                    ->label('Check-out Time')
-                                    ->type('time')
-                                    ->after('CheckinTwo')
-                                    ->required(fn (string $context) => $context === 'create'),
-                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                //                 TextInput::make('CheckoutTwo')
+                //                     ->label('Check-out Time')
+                //                     ->type('time')
+                //                     ->after('CheckinTwo')
+                //                     ->required(fn (string $context) => $context === 'create'),
+                //             ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
         
-                        ])->columns(2)->compact(),
-                    ])
-                    ->action(function ($record, $data) {
-                        // Create a new WorkSchedule
-                        $schedule = WorkSched::create([
-                        'ScheduleName' => $data['ScheduleName'],
-                        'RegularHours' => $data['RegularHours'],
-                        'monday' => $data['monday'] ?? false,
-                        'tuesday' => $data['tuesday'] ?? false,
-                        'wednesday' => $data['wednesday'] ?? false,
-                        'thursday' => $data['thursday'] ?? false,
-                        'friday' => $data['friday'] ?? false,
-                        'saturday' => $data['saturday'] ?? false,
-                        'sunday' => $data['sunday'] ?? false,
-                        'CheckinOne' => $data['CheckinOne'],
-                        'CheckoutOne' => $data['CheckoutOne'],
-                        'CheckinTwo' => $data['CheckinTwo'],
-                        'CheckoutTwo' => $data['CheckoutTwo'],
-                        ]);
+                //         ])->columns(2)->compact(),
+                //     ])
+                //     ->action(function ($record, $data) {
+                //         // Create a new WorkSchedule
+                //         $schedule = WorkSched::create([
+                //         'ScheduleName' => $data['ScheduleName'],
+                //         'RegularHours' => $data['RegularHours'],
+                //         'monday' => $data['monday'] ?? false,
+                //         'tuesday' => $data['tuesday'] ?? false,
+                //         'wednesday' => $data['wednesday'] ?? false,
+                //         'thursday' => $data['thursday'] ?? false,
+                //         'friday' => $data['friday'] ?? false,
+                //         'saturday' => $data['saturday'] ?? false,
+                //         'sunday' => $data['sunday'] ?? false,
+                //         'CheckinOne' => $data['CheckinOne'],
+                //         'CheckoutOne' => $data['CheckoutOne'],
+                //         'CheckinTwo' => $data['CheckinTwo'],
+                //         'CheckoutTwo' => $data['CheckoutTwo'],
+                //         ]);
     
-                        // Optionally, update the employee's current schedule in Employee model
-                        $record->update([
-                            'schedule_id' => $schedule->id,
-                        ]);
+                //         // Optionally, update the employee's current schedule in Employee model
+                //         $record->update([
+                //             'schedule_id' => $schedule->id,
+                //         ]);
 
-                        Notification::make()
-                        ->title('Work Schedule Added')
-                        ->success()
-                        ->body('The work schedule has been successfully added.')
-                        ->send();
-                    }),
+                //         Notification::make()
+                //         ->title('Work Schedule Added')
+                //         ->success()
+                //         ->body('The work schedule has been successfully added.')
+                //         ->send();
+                //     }),
 
             ])
 
@@ -205,8 +212,25 @@ class EmployeesRelationManager extends RelationManager
                         })
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation(),
-
                 ]),
+
+                BulkAction::make('assign_to_schedule')
+                        ->label('Assign to Work Schedule')
+                        ->form([
+                            Select::make('schedule_id')
+                                ->label('Work Schedule')
+                                ->relationship('schedule', 'ScheduleName')
+                                ->required()
+                        ])
+                        ->action(function (array $data, Collection $records) {
+                            $scheduleId = $data['schedule_id'];
+        
+                            foreach ($records as $record) {
+                                $record->update(['schedule_id' => $scheduleId]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
             ]);
     }
 }

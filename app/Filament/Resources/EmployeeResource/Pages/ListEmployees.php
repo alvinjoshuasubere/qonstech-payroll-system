@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\EmployeeResource\Pages;
 
 use App\Filament\Resources\EmployeeResource;
+use App\Models\Employee;
 use Filament\Support\Enums\ActionSize;
 use Filament\Actions;
 use Filament\Notifications\Notification;
@@ -11,6 +12,7 @@ use Filament\Actions\ActionGroup;
 Use modalSubmitActionLabel;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Collection;
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 
 class ListEmployees extends ListRecords
@@ -206,5 +208,19 @@ class ListEmployees extends ListRecords
 
         ];
 
-}
+    }
+    public function getTabs(): array
+    {
+        return [
+            'All' => Tab::make(),
+
+            'Available' => Tab::make()->modifyQueryUsing(function ($query){
+                $query->where('status', 'Available');
+            }),
+
+            'Assigned' => Tab::make()->modifyQueryUsing(function ($query){
+                $query->where('status', 'Assigned');
+            }),
+        ];
+    }
 }
