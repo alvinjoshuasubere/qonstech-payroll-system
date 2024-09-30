@@ -81,25 +81,44 @@ class WorkSchedResource extends Resource
 
                 Section::make('Days')
                     ->schema([
-                        Toggle::make('monday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                        Toggle::make('tuesday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                        Toggle::make('wednesday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                        Toggle::make('thursday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                        Toggle::make('friday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                        Toggle::make('saturday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                        Toggle::make('sunday')
-                            ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-                    ])
-                    ->compact()
-                    ->columns(7)
-                    ->collapsible(true),
-                Section::make('')
+// <<<<<<< dev-alvin
+//                         Toggle::make('monday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                         Toggle::make('tuesday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                         Toggle::make('wednesday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                         Toggle::make('thursday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                         Toggle::make('friday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                         Toggle::make('saturday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                         Toggle::make('sunday')
+//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
+//                     ])
+//                     ->compact()
+//                     ->columns(7)
+//                     ->collapsible(true),
+//                 Section::make('')
+// =======
+                        
+                        TextInput::make('CheckinOne')
+                            ->label('Check-in Time')
+                            ->type('time')
+                            ->required(fn (string $context) => $context === 'create'),
+                        
+                        TextInput::make('CheckoutOne')
+                            ->label('Check-out Time')
+                            
+                            ->type('time')
+                            ->after('CheckinOne')
+                            ->required(fn (string $context) => $context === 'create'),
+
+                    ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                
+                    Section::make('Afternoon Shift')
+// >>>>>>> main
                     ->schema([
                         Section::make('Morning Shift')
                             ->schema([
