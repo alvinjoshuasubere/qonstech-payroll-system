@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('position_id');
             $table->unsignedBigInteger('project_id');
             $table->unsignedBigInteger('schedule_id');
+            $table->timestamp('email')->nullable();
             $table->string('first_name', 50);
             $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
