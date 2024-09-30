@@ -79,6 +79,7 @@ class WorkSchedResource extends Resource
                         
                         TextInput::make('CheckoutOne')
                             ->label('Check-out Time')
+                            
                             ->type('time')
                             ->after('CheckinOne')
                             ->required(fn (string $context) => $context === 'create'),
