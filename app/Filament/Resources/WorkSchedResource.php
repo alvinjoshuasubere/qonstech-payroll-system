@@ -19,6 +19,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -54,71 +55,56 @@ class WorkSchedResource extends Resource
                             ->maxLength(2)
                             ->maxValue(12),
 
-                        Select::make('scheduleType')
+                        Select::make('ScheduleType')
                             ->label('Schedule Type')
                             ->required(fn(string $context) => $context === 'create')
                             ->options([
                                 'Fixed' => 'Fixed',
                                 'Flexible' => 'Flexible'
                             ])
-                            ->reactive() // Add this to listen to changes in scheduleType
-                            ->afterStateUpdated(function (callable $set, $state) {
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state === 'Flexible') {
-                                    // When Flexible is selected, disable the days and set values to null
-                                    $set('monday', null);
-                                    $set('tuesday', null);
-                                    $set('wednesday', null);
-                                    $set('thursday', null);
-                                    $set('friday', null);
-                                    $set('saturday', null);
-                                    $set('sunday', null);
+                                    $set('monday', 0);
+                                    $set('tuesday', 0);
+                                    $set('wednesday', 0);
+                                    $set('thursday', 0);
+                                    $set('friday', 0);
+                                    $set('saturday', 0);
+                                    $set('sunday', 0);
+                                    $set('CheckinOne', '00:00');
+                                    $set('CheckoutOne', '00:00');
+                                    $set('CheckinTwo', '00:00');
+                                    $set('CheckoutTwo', '00:00');
                                 }
                             })
-                            ->native(false),
                     ])->compact()->columns(),
 
 
 
                 Section::make('Days')
                     ->schema([
-// <<<<<<< dev-alvin
-//                         Toggle::make('monday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                         Toggle::make('tuesday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                         Toggle::make('wednesday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                         Toggle::make('thursday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                         Toggle::make('friday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                         Toggle::make('saturday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                         Toggle::make('sunday')
-//                             ->disabled(fn(callable $get) => $get('scheduleType') === 'Flexible'),
-//                     ])
-//                     ->compact()
-//                     ->columns(7)
-//                     ->collapsible(true),
-//                 Section::make('')
-// =======
-                        
-                        TextInput::make('CheckinOne')
-                            ->label('Check-in Time')
-                            ->type('time')
-                            ->required(fn (string $context) => $context === 'create'),
-                        
-                        TextInput::make('CheckoutOne')
-                            ->label('Check-out Time')
-                            
-                            ->type('time')
-                            ->after('CheckinOne')
-                            ->required(fn (string $context) => $context === 'create'),
+                        Toggle::make('monday'),
 
-                    ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
-                
-                    Section::make('Afternoon Shift')
-// >>>>>>> main
+                        Toggle::make('tuesday'),
+
+                        Toggle::make('wednesday'),
+
+                        Toggle::make('thursday'),
+
+                        Toggle::make('friday'),
+
+                        Toggle::make('saturday'),
+
+                        Toggle::make('sunday')
+
+                    ])
+                    ->compact()
+                    ->columns(7)
+                    ->collapsible(true)->hidden(fn($get) => $get('ScheduleType') === 'Flexible'),
+
+                Section::make('Shift Schedule')
+
                     ->schema([
                         Section::make('Morning Shift')
                             ->schema([
@@ -128,13 +114,14 @@ class WorkSchedResource extends Resource
                                     ->type('time')
                                     ->required(fn(string $context) => $context === 'create'),
 
+
                                 TextInput::make('CheckoutOne')
                                     ->label('Check-out Time')
                                     ->type('time')
                                     ->after('CheckinOne')
                                     ->required(fn(string $context) => $context === 'create'),
 
-                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1)->hidden(fn($get) => $get('ScheduleType') === 'Flexible'),
 
                         Section::make('Afternoon Shift')
                             ->schema([
@@ -148,9 +135,9 @@ class WorkSchedResource extends Resource
                                     ->type('time')
                                     ->after('CheckinTwo')
                                     ->required(fn(string $context) => $context === 'create'),
-                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1),
+                            ])->collapsible(true)->columns(2)->compact()->columnSpan(1)->hidden(fn($get) => $get('ScheduleType') === 'Flexible'),
 
-                    ])->columns(2)->compact(),
+                    ])->columns(2)->compact()->hidden(fn($get) => $get('ScheduleType') === 'Flexible'),
             ]);
     }
 
@@ -160,6 +147,7 @@ class WorkSchedResource extends Resource
             ->columns([
                 TextColumn::make('id'),
                 TextColumn::make('ScheduleName')->searchable(),
+                TextColumn::make('ScheduleType')->searchable(),
                 IconColumn::make('monday')->boolean()->label('Monday'),
                 IconColumn::make('tuesday')->boolean()->label('Tuesday'),
                 IconColumn::make('wednesday')->boolean()->label('Wednesday'),
@@ -172,9 +160,31 @@ class WorkSchedResource extends Resource
                 TextColumn::make('CheckinTwo'),
                 TextColumn::make('CheckoutTwo'),
             ])
+
             ->filters([
-                //
+                SelectFilter::make('ScheduleName')
+                    ->label('Filter by ScheduleName')
+                    ->options(
+                        WorkSched::query()
+                            ->pluck('ScheduleName', 'ScheduleName')
+                            ->toArray()
+                    )
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
+
+                SelectFilter::make('ScheduleType')
+                    ->label('Filter by ScheduleType')
+                    ->options(
+                        WorkSched::query()
+                            ->pluck('ScheduleType', 'ScheduleType')
+                            ->toArray()
+                    )
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
             ])
+
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

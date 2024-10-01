@@ -29,6 +29,7 @@ return new class extends Migration {
             $table->string('contact_number', 15);
             $table->string('status');
             $table->string('attendance_code', 50);
+            $table->string('SSSNumber', 50)->nullable();
             $table->string('TaxIdentificationNumber', 50)->nullable();
             $table->string('PhilHealthNumber', 50)->nullable();
             $table->string('PagibigNumber', 50)->nullable();
